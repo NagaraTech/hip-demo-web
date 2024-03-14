@@ -1,9 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {Link, useNavigate} from 'react-router-dom';
-// import {getPublicKey} from 'nostr-tools'
-// import Pagination from '@mui/material/Pagination';
-// import Login from './login';
-// import usePagination from "./Pagination";
+import { Pagination } from 'antd';
+import {usePagination} from "@/utils/pagination/pagination.tsx";
 import Loading from "@/components/loading"
 
 
@@ -29,16 +27,19 @@ function Votes() {
         navigate("/login");
     };
 
-    // let [page, setPage] = useState(1);
-    // const PER_PAGE = 5;
-    //
-    // const count = Math.ceil(InitSearchData.length / PER_PAGE);
-    // const _DATA = usePagination(InitSearchData, PER_PAGE);
-    const _DATA = InitSearchData;
-    // const handleChange = (e, p) => {
-    //     setPage(p);
-    //     _DATA.jump(p);
-    // };
+
+    const [pageSize, setPageSize] = useState(10);
+    const count = InitSearchData.length ;
+    const _DATA = usePagination(InitSearchData, pageSize);
+    const pageNumberChange = (pageNumber) => {
+        console.log('Page: ', pageNumber);
+        _DATA.jump(pageNumber);
+    };
+
+    const onShowSizeChange = (current, pageSize) => {
+        console.log(current, pageSize);
+        setPageSize(pageSize);
+    };
 
     useEffect(() => {
 
@@ -242,9 +243,9 @@ function Votes() {
                             <div className="mt-8">
                                 <h2 className="text-2xl font-semibold mb-4">Proposals</h2>
 
-                                {_DATA.map((item) => (
-                                    <Link to={`/layout/poll&vote/details/${item[0]}`}>
-                                        <div className="bg-white p-4 rounded-md shadow-sm mb-4" key={item[0]}>
+                                {_DATA.currentData().map((item) => (
+                                    <Link to={`/layout/poll&vote/details/${item[0]}`} key={item[0]}>
+                                        <div className="bg-white p-4 rounded-md shadow-sm mb-4">
                                             <div className="flex justify-between items-center mb-2">
                                                 <span
                                                     className="text-sm text-gray-500">
@@ -262,6 +263,14 @@ function Votes() {
 
                                 ))}
 
+                                <Pagination
+                                    showSizeChanger
+                                    onShowSizeChange={onShowSizeChange}
+                                    showQuickJumper
+                                    defaultCurrent={1}
+                                    total={count}
+                                    onChange={pageNumberChange}
+                                />
 
                                 {/*<Pagination*/}
                                 {/*    count={count}*/}

@@ -1,6 +1,6 @@
 
 import React, { useEffect ,useState} from 'react';
-import { Link,useNavigate } from 'react-router-dom';
+import { Link,useNavigate} from 'react-router-dom';
 
 import { Relay } from 'nostr-tools';
 import { finalizeEvent } from 'nostr-tools';
@@ -12,7 +12,6 @@ import { finalizeEvent } from 'nostr-tools';
 let choiceValue = 'single';
 
 function NewVote() {
-
 
     const navigate = useNavigate();
     const [title, setTitle] = React.useState('');
@@ -30,7 +29,7 @@ function NewVote() {
     };
 
     const handleLogoutClick = () => {
-        navigate("/login");
+        navigate("/layout/poll&vote/votes");
     };
 
 
@@ -38,7 +37,7 @@ function NewVote() {
         const local_sk = localStorage.getItem('sk')
 
         if (local_sk == null){
-            navigate("/login");
+            navigate("/layout/poll&vote/votes");
         }else{
             const numberArray = local_sk.split(",").map(Number)
             // make sure array equal to 32
@@ -121,7 +120,7 @@ function NewVote() {
         console.log('Options:', options);
         console.log('Multiple Choice Allowed:', multipleChoiceAllowed);
 
-        var jsonData = {
+        const jsonData = {
             title: title,
             content: content,
             startTime: startTime,
@@ -196,6 +195,9 @@ function NewVote() {
             let result = await relay.publish(signedEvent)
             console.log("write result", result)
             relay.close()
+
+
+            navigate("/layout/poll&vote/votes");
         }
 
 
@@ -371,9 +373,7 @@ function NewVote() {
 
                         <div className="flex items-center justify-center">
                             <button onClick={handlePublish} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
-
-
-                                <Link to='/'> submmit </Link>
+                                Submit
                             </button>
                         </div>
                     </div>
