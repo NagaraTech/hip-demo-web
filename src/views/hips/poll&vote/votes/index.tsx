@@ -131,6 +131,7 @@ function Votes() {
 
     }
 
+    // @ts-ignore
     return (<div>
         <div>
             {isLoading ? (
@@ -248,7 +249,7 @@ function Votes() {
                                                 <span
                                                     className="text-sm text-gray-500">
                                                     {
-                                                        item[0].length > 10 ? `${item[0].substring(0, 5)}...${item[0].substring(item[0].length - 5)}` : item[0]
+                                                        item[0]
                                                     }
                                                 </span>
                                                 <span

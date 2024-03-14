@@ -2,7 +2,7 @@
 import React, { useEffect ,useState} from 'react';
 import { Link,useNavigate } from 'react-router-dom';
 
-import { Relay, getPublicKey } from 'nostr-tools';
+import { Relay } from 'nostr-tools';
 import { finalizeEvent } from 'nostr-tools';
 
 
@@ -158,38 +158,46 @@ function NewVote() {
         // let's publish a new event while simultaneously monitoring the relay for it
         let local_sk = localStorage.getItem('sk')
 
-        const numberArray = local_sk.split(",").map(Number)
+        if (local_sk !== null){
 
-        while (numberArray.length < 32) {
-            numberArray.push(0);
+            const numberArray = local_sk.split(",").map(Number)
+            while (numberArray.length < 32) {
+                // @ts-ignore
+                numberArray.push(0);
+            }
+            // @ts-ignore
+            let sk = numberArray.map(num => num.toString(16).padStart(2, '0')).join('');;
+            console.log('sk', sk)
+            // pk = getPublicKey(sk)
+
+            // @ts-ignore
+            let tags = ["poll", choiceValue, "0", jsonData.startTime, jsonData.endTime, jsonData.title, jsonData.content]
+            // @ts-ignore
+            for (var op in jsonData.options) {
+                tags.push(jsonData.options[op])
+            }
+
+            console.log('tags', tags);
+
+            let eventTemplate = {
+                kind: 301,
+                created_at: Math.floor(Date.now() / 1000),
+                tags: [tags],
+                content: "",
+            }
+
+
+
+            // this assigns the pubkey, calculates the event id and signs the event in a single step
+            // @ts-ignore
+            const signedEvent = finalizeEvent(eventTemplate, sk)
+
+            console.log("signedEvent", signedEvent)
+            let result = await relay.publish(signedEvent)
+            console.log("write result", result)
+            relay.close()
         }
-        let sk = numberArray.map(num => num.toString(16).padStart(2, '0')).join('');;
-        console.log('sk', sk)
-        // pk = getPublicKey(sk)
 
-        let tags = ["poll", choiceValue, "0", jsonData.startTime, jsonData.endTime, jsonData.title, jsonData.content]
-        for (var op in jsonData.options) {
-            tags.push(jsonData.options[op])
-        }
-
-        console.log('tags', tags);
-
-        let eventTemplate = {
-            kind: 301,
-            created_at: Math.floor(Date.now() / 1000),
-            tags: [tags],
-            content: "",
-        }
-
-
-
-        // this assigns the pubkey, calculates the event id and signs the event in a single step
-        const signedEvent = finalizeEvent(eventTemplate, sk)
-
-        console.log("signedEvent", signedEvent)
-        let result = await relay.publish(signedEvent)
-        console.log("write result", result)
-        relay.close()
 
 
     }
@@ -243,7 +251,7 @@ function NewVote() {
 
                 </header>
 
-                <div class="mx-auto w-3/5">
+                <div className="mx-auto w-3/5">
 
                     <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
                         <div className="mb-4">
@@ -347,7 +355,7 @@ function NewVote() {
                                             className="absolute top-0 right-0 cursor-pointer text-red-500"
                                             onClick={() => handleRemoveOption(index)}
                                         >
-                                            <image src='./logo.png' />
+                                            <img src='./logo.png' />
                                         </span>
                                     </div>
                                 ))}

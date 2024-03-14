@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Relay, getPublicKey } from 'nostr-tools';
+import { Relay} from 'nostr-tools';
 import { finalizeEvent } from 'nostr-tools';
 import CopyToClipboard from "react-copy-to-clipboard";
 
@@ -17,11 +17,11 @@ function Detial() {
     const navigate = useNavigate();
 
     console.log("id", id);
-    const [InitSearchData, setInitSearchData] = useState([{
+    const [InitSearchData, setInitSearchData] = useState({
         id: "key",
         title: "item.tags[3]",
         info: "item.tags[4]}]"
-    }]);
+    });
 
     const [voteId, setVoteId] = useState('7af75a57a5d');
     const [multipleChoice, setMultipleChoice] = useState('Single choice voting');
@@ -30,7 +30,7 @@ function Detial() {
     const [options, setOptions] = useState(['A', 'B', 'C']);
     const [addr, setAddr] = React.useState('0x1231');
     const [optionsNum, setOptionsNum] = useState([0, 0, 0]);
-    const [selectedOptions, setSelectedOptions] = useState([]);
+    const [selectedOptions, setSelectedOptions] = useState([1]);
     const [choiceValue, setChoiceValue] = useState('single');
     const [showDropdown, setShowDropdown] = useState(false);
     const [voted, setVoted] = useState(false);
@@ -48,15 +48,15 @@ function Detial() {
 
 
     const copiedMessageStyles = {
-        position: "fixed",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-        backgroundColor: "#f3f4f6",
-        padding: "0.5rem 1rem",
-        borderRadius: "0.25rem",
-        color: "#1f2937",
-    };
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        backgroundColor: '#f3f4f6',
+        padding: '0.5rem 1rem',
+        borderRadius: '0.25rem',
+        color: '#1f2937',
+    } as React.CSSProperties;
 
     const handleCopy = () => {
 
@@ -79,14 +79,15 @@ function Detial() {
             navigate("/login");
         } else {
             const numberArray = local_sk.split(",").map(Number)
-
+            // make sure array equal to 32
             while (numberArray.length < 32) {
-                numberArray.push(0);
+                numberArray.push(0); // 0
             }
-            let sk = numberArray.map(num => num.toString(16).padStart(2, '0')).join('');;
+            const sk = numberArray.map(num => num.toString(16).padStart(2, '0')).join('');
 
+            console.log('sk', sk)
 
-            setAddr('0x' + getPublicKey(sk))
+            setAddr('0x' + sk)
         }
 
 
@@ -105,6 +106,7 @@ function Detial() {
         if (choiceValue == 'multi') {
             // multi choice
             if (isChecked) {
+                // @ts-ignore
                 setSelectedOptions((prevSelectedOptions) => [...prevSelectedOptions, index]);
             } else {
                 setSelectedOptions((prevSelectedOptions) =>
@@ -141,11 +143,14 @@ function Detial() {
                 console.log('1 Received data:', data);
 
                 console.log('Received tags:', data.tags[0]);
+                // @ts-ignore
                 setVoteId(id)
                 setMultipleChoice(data.tags[0].values[1])
                 setStartDate(data.tags[0].values[3])
                 setEndDate(data.tags[0].values[4])
+
                 setInitSearchData({
+                    // @ts-ignore
                     "id": id,
                     "title": data.tags[0].values[5],
                     "info": data.tags[0].values[6]
@@ -189,47 +194,55 @@ function Detial() {
         console.log(`Connected to ${relay.url}`);
 
         // let's publish a new event while simultaneously monitoring the relay for it
-        let local_sk = localStorage.getItem('sk')
+        let local_sk = localStorage.getItem('sk');
+        if (local_sk !== null){
+            let numberArray = local_sk.split(",").map(Number);
 
-        const numberArray = local_sk.split(",").map(Number)
+            while (numberArray.length < 32) {
+                // @ts-ignore
+                numberArray.push(0); //
+            }
+            // @ts-ignore
+            let sk = numberArray.map(num => num.toString(16).padStart(2, '0')).join('');
+            console.log('sk', sk);
+            // let pk = getPublicKey(sk)
 
-        while (numberArray.length < 32) {
-            numberArray.push(0); //
-        }
-        let sk = numberArray.map(num => num.toString(16).padStart(2, '0')).join('');;
-        console.log('sk', sk)
-        // let pk = getPublicKey(sk)
 
 
-        let eventTemplate = {
-            kind: 309,
-            created_at: Math.floor(Date.now() / 1000),
-            tags: [
-                [
-                    "e",
-                    id,
+            let eventTemplate = {
+                kind: 309,
+                created_at: Math.floor(Date.now() / 1000),
+                tags: [
+                    [
+                        "e",
+                        id,
+                    ],
+                    [
+                        "poll_r"
+                    ].concat(selectedOptions.map(String))
                 ],
-                [
-                    "poll_r"
-                ].concat(selectedOptions.map(String))
-            ],
-            content: "",
+                content: "",
+            }
+
+
+            // this assigns the pubkey, calculates the event id and signs the event in a single step
+            // @ts-ignore
+            const signedEvent = finalizeEvent(eventTemplate, sk)
+
+            console.log("signedEvent", signedEvent)
+            await relay.publish(signedEvent)
+            setVoted(true);
+            setOptionsNum(num)
+            console.log("write result")
+            relay.close()
         }
 
-
-        // this assigns the pubkey, calculates the event id and signs the event in a single step
-        const signedEvent = finalizeEvent(eventTemplate, sk)
-
-        console.log("signedEvent", signedEvent)
-        await relay.publish(signedEvent)
-        setVoted(true);
-        setOptionsNum(num)
-        console.log("write result")
-        relay.close()
     }
 
 
 
+
+    // @ts-ignore
     return (<div>
         <head>
             <title>DAO Voting Interface</title>
@@ -283,6 +296,7 @@ function Detial() {
                     <h1 className="text-xl font-bold mb-4">{InitSearchData.title}</h1>
                     <article className="text-gray-700">
                         <p>
+                            // @ts-ignore
                             {InitSearchData.info}
                         </p>
                     </article>
