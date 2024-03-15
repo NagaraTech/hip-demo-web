@@ -1,4 +1,3 @@
-import  { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSDK } from "@metamask/sdk-react";
 import hetuLogo from '@/assets/images/hetu-logo.png'
@@ -7,7 +6,7 @@ import hetucn from '@/assets/images/hetu-cn.png'
 const Login = () => {
 
     const navigate = useNavigate();
-    const { sdk, connected, connecting, provider, chainId } = useSDK()
+    const { sdk } = useSDK()
 
     const connect = async () => {
         try {

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Link, useNavigate, Navigate} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import { Pagination } from 'antd';
 import {usePagination} from "@/utils/pagination/pagination.tsx";
 import Loading from "@/components/loading"
