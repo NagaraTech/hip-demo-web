@@ -5,6 +5,7 @@ import {
   FileTextOutlined
 } from '@ant-design/icons';
 import { Breadcrumb, Layout, Menu, theme, MenuProps } from 'antd';
+import {useSDK} from "@metamask/sdk-react";
 const { Content, Sider } = Layout;
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -26,6 +27,7 @@ const items: MenuItem[] = [
   getItem('HIPBs', '/demo', <FileTextOutlined />, [
     getItem('Poll&Vote', '/layout/poll&vote/votes', <FileTextOutlined />),
   ]),
+  getItem('Logout', '/login', <FileTextOutlined />),
 ];
 function Aside() {
   const [collapsed, setCollapsed] = useState(false);
@@ -34,10 +36,19 @@ function Aside() {
   const { token: { colorBgContainer } } = theme.useToken();
   let title = '';
   const useTitle = localStorage.getItem('title')
+  const { sdk } = useSDK()
   // 子路由跳转
-  const menuClick = (e: { key: string }) => {
+  const  menuClick = async (e: { key: string }) => {
     if (e.key == '/layout/home') {
       title = 'HomePage'
+      localStorage.setItem('title', title)
+    }
+    else if (e.key == '/login') {
+      if (sdk) {
+        sdk.terminate();
+        localStorage.removeItem("accounts")
+      }
+      title = 'login'
       localStorage.setItem('title', title)
     }
     else if (e.key == '/layout/poll&vote/votes') {
@@ -87,24 +98,23 @@ function Aside() {
     <div className='aside-container'>
       <Layout style={{ minHeight: '100vh' }}>
         <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
-          <div className="demo-logo-vertical" />
           <div className='title'>HeTu-HIPBs</div>
           <Menu
-            theme="dark"
-            defaultSelectedKeys={['layout']}
-            openKeys={openKeys} mode="inline"
-            selectedKeys={[pathname]}
-            onOpenChange={handleOpen}
-            items={items}
-            onClick={menuClick}
+              theme="dark"
+              defaultSelectedKeys={['layout']}
+              openKeys={openKeys} mode="inline"
+              selectedKeys={[pathname]}
+              onOpenChange={handleOpen}
+              items={items}
+              onClick={menuClick}
           />
         </Sider>
         <Layout>
-          <Content style={{ margin: '0 16px' }}>
-            <Breadcrumb style={{ margin: '16px 0' }}
-              items={[
-                { title: `HeTu ${title ? '/' : ''} ${title ? title : '/ ' + useTitle}` },
-              ]}>
+          <Content style={{margin: '0 16px'}}>
+            <Breadcrumb style={{margin: '16px 0'}}
+                        items={[
+                          {title: `HeTu ${title ? '/' : ''} ${title ? title : '/ ' + useTitle}`},
+                        ]}>
             </Breadcrumb>
             <div
               style={{

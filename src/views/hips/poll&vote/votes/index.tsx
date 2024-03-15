@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Link, useNavigate} from 'react-router-dom';
+import {Link, useNavigate, Navigate} from 'react-router-dom';
 import { Pagination } from 'antd';
 import {usePagination} from "@/utils/pagination/pagination.tsx";
 import Loading from "@/components/loading"
@@ -132,7 +132,7 @@ function Votes() {
 
     }
 
-    // @ts-ignore
+
     return (<div>
         <div>
             {isLoading ? (
@@ -142,15 +142,12 @@ function Votes() {
 
 
                     <header className="flex justify-between items-center mb-8 p-4 bg-white shadow rounded">
-
-                        <Link to="/"> <a>
-                            <img src="./logo.png" alt="Logo" className="h-8"></img>
-                        </a></Link>
-
                         <div className="flex justify-end">
 
 
-                            <button><Link to="/layout/poll&vote/new_vote"> New vote </Link></button>
+                            <button className={`bg-green-700 rounded-full hover:bg-gray-700 text-white font-bold py-2 px-4 ml-8`}>
+                                <Link to="/layout/poll&vote/new_vote"> New vote </Link>
+                            </button>
 
 
                             <div className="relative inline-block">

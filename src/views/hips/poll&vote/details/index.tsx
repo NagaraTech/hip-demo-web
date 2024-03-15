@@ -244,22 +244,6 @@ function Detial() {
 
     // @ts-ignore
     return (<div>
-        <head>
-            <title>DAO Voting Interface</title>
-            <script src="https://unpkg.com/react/umd/react.development.js"></script>
-            <script src="https://unpkg.com/react-dom/umd/react-dom.development.js"></script>
-            <script src="https://unpkg.com/@babel/standalone/babel.js"></script>
-            <script src="https://cdn.tailwindcss.com"></script>
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>
-            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
-            <style>
-                {`
-              body {
-                font-family: 'Inter', sans-serif;
-              }
-            `}
-            </style>
-        </head>
 
         <div className="container mx-auto px-4 py-8">
             <header className="flex justify-between items-center mb-8 p-4 bg-white shadow rounded">
@@ -296,7 +280,6 @@ function Detial() {
                     <h1 className="text-xl font-bold mb-4">{InitSearchData.title}</h1>
                     <article className="text-gray-700">
                         <p>
-                            // @ts-ignore
                             {InitSearchData.info}
                         </p>
                     </article>
